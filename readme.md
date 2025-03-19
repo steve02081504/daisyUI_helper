@@ -1,5 +1,7 @@
 # daisyUI_helper
 
+[![fount character](https://steve02081504.github.io/fount/badges/fount_character.svg)](https://steve02081504.github.io/fount/protocol?url=fount://runshell/install/install;https://github.com/steve02081504/daisyUI_helper)
+
 [Quick Install/Update](https://steve02081504.github.io/fount/protocol?url=fount://runshell/install/install;https://github.com/steve02081504/daisyUI_helper)
 
 An AI assistant character for [fount](https://github.com/steve02081504/fount), it fetches official daisyUI llm prompt from [`https://daisyui.com/llms.txt`](https://daisyui.com/llms.txt) and uses it to answer your questions. (Thank you [@Pouya 🌼](https://github.com/saadeghi)!)
