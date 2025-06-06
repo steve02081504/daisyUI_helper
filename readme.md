@@ -1,8 +1,8 @@
 # daisyUI_helper
 
-[![fount character](https://steve02081504.github.io/fount/badges/fount_character.svg)](https://steve02081504.github.io/fount/protocol?url=fount://runshell/install/install;https://github.com/steve02081504/daisyUI_helper)
+[![fount character](https://steve02081504.github.io/fount/badges/fount_character.svg)](https://steve02081504.github.io/fount/protocol?url=fount://run/shells/install/install;https://github.com/steve02081504/daisyUI_helper)
 
-[Quick Install/Update](https://steve02081504.github.io/fount/protocol?url=fount://runshell/install/install;https://github.com/steve02081504/daisyUI_helper)
+[Quick Install/Update](https://steve02081504.github.io/fount/protocol?url=fount://run/shells/install/install;https://github.com/steve02081504/daisyUI_helper)
 
 An AI assistant character for [fount](https://github.com/steve02081504/fount), it fetches official daisyUI llm prompt from [`https://daisyui.com/llms.txt`](https://daisyui.com/llms.txt) and uses it to answer your questions. (Thank you [@Pouya 🌼](https://github.com/saadeghi)!)
 ![Image](https://github.com/user-attachments/assets/dcae33d8-3090-4a5f-bb84-dfab87958d33)
@@ -31,7 +31,7 @@ Install [fount](https://github.com/steve02081504/fount), then launch it.
 
 Choose one of the following methods to install the daisyUI_helper character:
 
-* **Quick Install Link:** Click the [Quick Install/Update](https://steve02081504.github.io/fount/protocol?url=fount://runshell/install/install;https://github.com/steve02081504/daisyUI_helper) link here.
+* **Quick Install Link:** Click the [Quick Install/Update](https://steve02081504.github.io/fount/protocol?url=fount://run/shells/install/install;https://github.com/steve02081504/daisyUI_helper) link here.
 * **Text Import:**
   * Click the **Import** button in the upper right corner of the fount homepage.  
     ![图片](https://github.com/user-attachments/assets/1d90c216-9fc3-458d-92a2-8be7c74b4819)
