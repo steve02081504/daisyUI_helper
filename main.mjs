@@ -1,8 +1,8 @@
 /**
- * @typedef {import('../../../../../src/decl/charAPI.ts').charAPI_t} charAPI_t
+ * @typedef {import('../../../../../src/decl/charAPI.ts').CharAPI_t} CharAPI_t
  */
 
-import { loadAIsource } from '../../../../../src/server/managers/AIsources_manager.mjs'
+import { loadAIsource } from '../../../../../src/server/managers/AIsource_manager.mjs'
 import { buildPromptStruct } from '../../../../../src/public/shells/chat/src/server/prompt_struct.mjs'
 
 // AI源的实例
@@ -12,7 +12,7 @@ let AIsource = null
 // 用户名，用于加载AI源
 let username = ''
 
-/** @type {charAPI_t} */
+/** @type {CharAPI_t} */
 export default {
 	// 角色的基本信息
 	info: {
@@ -31,7 +31,7 @@ export default {
 `, // 角色的详细介绍，支持Markdown语法
 			version: '1.0.0', // 角色的版本号
 			author: 'steve02081504 & ZL-31 & Pouya 🌼', // 角色的作者
-			homepage: 'https://daisyui.com', // 角色的主页
+			home_page: 'https://daisyui.com', // 角色的主页
 			tags: ['daisyUI', '前端开发', '助手'], // 角色的标签
 		},
 		'en-US': {
@@ -49,7 +49,7 @@ An assistant to help you build pages quickly with daisyUI.
 `,
 			version: '1.0.0',
 			author: 'steve02081504 & ZL-31 & Pouya 🌼',
-			homepage: 'https://daisyui.com',
+			home_page: 'https://daisyui.com',
 			tags: ['daisyUI', 'Front-end Development', 'Assistant'],
 		},
 		'es-ES': { // 西班牙语
@@ -67,7 +67,7 @@ Un asistente para ayudarte a construir páginas rápidamente con daisyUI.
 `,
 			version: '1.0.0',
 			author: 'steve02081504 & ZL-31 & Pouya 🌼',
-			homepage: 'https://daisyui.com',
+			home_page: 'https://daisyui.com',
 			tags: ['daisyUI', 'Desarrollo Front-end', 'Asistente'],
 		},
 		'fr-FR': { // 法语
@@ -85,7 +85,7 @@ Un assistant pour vous aider à construire des pages rapidement avec daisyUI.
 `,
 			version: '1.0.0',
 			author: 'steve02081504 & ZL-31 & Pouya 🌼',
-			homepage: 'https://daisyui.com',
+			home_page: 'https://daisyui.com',
 			tags: ['daisyUI', 'Développement Front-end', 'Assistant'],
 		},
 		'de-DE': { // 德语
@@ -103,7 +103,7 @@ Ein Assistent, der Ihnen hilft, schnell Seiten mit daisyUI zu erstellen.
 `,
 			version: '1.0.0',
 			author: 'steve02081504 & ZL-31 & Pouya 🌼',
-			homepage: 'https://daisyui.com',
+			home_page: 'https://daisyui.com',
 			tags: ['daisyUI', 'Frontend-Entwicklung', 'Assistent'],
 		},
 		'ja-JP': { // 日语
@@ -121,7 +121,7 @@ daisyUIで素早くページを構築するのに役立つアシスタント。
 `,
 			version: '1.0.0',
 			author: 'steve02081504 & ZL-31 & Pouya 🌼',
-			homepage: 'https://daisyui.com',
+			home_page: 'https://daisyui.com',
 			tags: ['daisyUI', 'フロントエンド開発', 'アシスタント'],
 		},
 		'ko-KR': { // 韩语
@@ -139,7 +139,7 @@ daisyUI를 사용하여 페이지를 빠르게 구축하도록 돕는 도우미�
 `,
 			version: '1.0.0',
 			author: 'steve02081504 & ZL-31 & Pouya 🌼',
-			homepage: 'https://daisyui.com',
+			home_page: 'https://daisyui.com',
 			tags: ['daisyUI', '프론트엔드 개발', '도우미'],
 		},
 		'ru-RU': { // 俄语
@@ -157,7 +157,7 @@ daisyUI를 사용하여 페이지를 빠르게 구축하도록 돕는 도우미�
 `,
 			version: '1.0.0',
 			author: 'steve02081504 & ZL-31 & Pouya 🌼',
-			homepage: 'https://daisyui.com',
+			home_page: 'https://daisyui.com',
 			tags: ['daisyUI', 'Фронтенд-разработка', 'Ассистент'],
 		},
 		'pt-PT': { // 葡萄牙语
@@ -175,7 +175,7 @@ Um assistente para ajudá-lo a construir páginas rapidamente com daisyUI.
 `,
 			version: '1.0.0',
 			author: 'steve02081504 & ZL-31 & Pouya 🌼',
-			homepage: 'https://daisyui.com',
+			home_page: 'https://daisyui.com',
 			tags: ['daisyUI', 'Desenvolvimento Front-end', 'Assistente'],
 		},
 		'it-IT': { // 意大利语
@@ -193,7 +193,7 @@ Un assistente per aiutarti a costruire pagine rapidamente con daisyUI.
 `,
 			version: '1.0.0',
 			author: 'steve02081504 & ZL-31 & Pouya 🌼',
-			homepage: 'https://daisyui.com',
+			home_page: 'https://daisyui.com',
 			tags: ['daisyUI', 'Sviluppo Front-end', 'Assistente'],
 		},
 		'ar-AR': { // 阿拉伯语
@@ -211,7 +211,7 @@ Un assistente per aiutarti a costruire pagine rapidamente con daisyUI.
 `,
 			version: '1.0.0',
 			author: 'steve02081504 & ZL-31 & Pouya 🌼',
-			homepage: 'https://daisyui.com',
+			home_page: 'https://daisyui.com',
 			tags: ['daisyUI', 'تطوير الواجهة الأمامية', 'مساعد'],
 			direction: 'rtl', // 阿拉伯语是从右向左书写的
 		},
@@ -230,7 +230,7 @@ Un assistente per aiutarti a costruire pagine rapidamente con daisyUI.
 `,
 			version: '1.0.0',
 			author: 'steve02081504 & ZL-31 & Pouya 🌼',
-			homepage: 'https://daisyui.com',
+			home_page: 'https://daisyui.com',
 			tags: ['daisyUI', 'फ्रंट-एंड डेवलपमेंट', 'सहायक'],
 		},
 	},
