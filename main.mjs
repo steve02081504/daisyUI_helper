@@ -2,8 +2,8 @@
  * @typedef {import('../../../../../src/decl/charAPI.ts').CharAPI_t} CharAPI_t
  */
 
+import { buildPromptStruct } from '../../../../../src/public/shells/chat/src/prompt_struct.mjs'
 import { loadAIsource } from '../../../../../src/server/managers/AIsource_manager.mjs'
-import { buildPromptStruct } from '../../../../../src/public/shells/chat/src/server/prompt_struct.mjs'
 
 // AI源的实例
 /** @type {import('../../../../../src/decl/AIsource.ts').AIsource_t} */
