@@ -333,7 +333,7 @@ Un assistente per aiutarti a costruire pagine rapidamente con daisyUI.
 				}
 			},
 			// 获取角色的提示词
-			GetPrompt: async (args, prompt_struct, detail_level) => {
+			GetPrompt: async (args) => {
 				try {
 					const response = await fetch('https://daisyui.com/llms.txt')
 					const daisyUIPrompt = await response.text()
@@ -375,7 +375,7 @@ ${args.Charname}: 好的，在daisyUI中创建一个按钮很简单：
 				}
 			},
 			// 获取其他角色看到的该角色的设定，群聊时生效
-			GetPromptForOther: (args, prompt_struct, detail_level) => {
+			GetPromptForOther: (args) => {
 				return {
 					text: [{
 						content: `\
