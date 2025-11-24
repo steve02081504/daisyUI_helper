@@ -423,11 +423,13 @@ ${args.Charname}: 好的，在daisyUI中创建一个按钮很简单：
 					result.content = requestResult.content
 					result.files = result.files.concat(requestResult.files || [])
 					result.extension = { ...result.extension, ...requestResult.extension }
+					let continue_regen = false
 					for (const replyHandler of [
 						...Object.values(args.plugins).map((plugin) => plugin.interfaces?.chat?.ReplyHandler)
 					].filter(Boolean))
 						if (replyHandler(result, { ...args, prompt_struct, AddLongTimeLog }))
-							continue regen
+							continue_regen = true
+					if (continue_regen) continue regen
 					break
 				}
 				// 返回构建好的回复
