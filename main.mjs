@@ -417,17 +417,35 @@ ${args.Charname}: 好的，在daisyUI中创建一个按钮很简单：
 					prompt_struct.char_prompt.additional_chat_log.push(entry)
 				}
 
+				// 构建更新预览管线
+				args.generation_options ??= {}
+				const oriReplyPreviewUpdater = args.generation_options?.replyPreviewUpdater
+				/**
+				 * 聊天回复预览更新管道。
+				 * @type {import('../../../../../src/public/shells/chat/decl/chatLog.ts').CharReplyPreviewUpdater_t}
+				 * @returns {any} 预览更新管道
+				 */
+				let replyPreviewUpdater = (args, r) => oriReplyPreviewUpdater?.(r)
+				for (const GetReplyPreviewUpdater of [
+					...Object.values(args.plugins).map(plugin => plugin.interfaces?.chat?.GetReplyPreviewUpdater)
+				].filter(Boolean))
+					replyPreviewUpdater = GetReplyPreviewUpdater(replyPreviewUpdater)
+
+				/**
+				 * @param {any} r - 局部响应
+				 * @returns {any} 预览更新管道
+				 */
+				args.generation_options.replyPreviewUpdater = r => replyPreviewUpdater(args, r)
+
 				// 在重新生成循环中检查插件触发
 				regen: while (true) {
-					const requestResult = await AIsource.StructCall(prompt_struct)
-					result.content = requestResult.content
-					result.files = result.files.concat(requestResult.files || [])
-					result.extension = { ...result.extension, ...requestResult.extension }
+					args.generation_options.base_result = result
+					await AIsource.StructCall(prompt_struct, args.generation_options)
 					let continue_regen = false
 					for (const replyHandler of [
 						...Object.values(args.plugins).map((plugin) => plugin.interfaces?.chat?.ReplyHandler)
 					].filter(Boolean))
-						if (replyHandler(result, { ...args, prompt_struct, AddLongTimeLog }))
+						if (await replyHandler(result, { ...args, prompt_struct, AddLongTimeLog }))
 							continue_regen = true
 					if (continue_regen) continue regen
 					break
