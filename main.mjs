@@ -2,8 +2,13 @@
  * @typedef {import('../../../../../src/decl/charAPI.ts').CharAPI_t} CharAPI_t
  */
 
-import { buildPromptStruct } from '../../../../../src/public/shells/chat/src/prompt_struct.mjs'
-import { loadAIsource } from '../../../../../src/server/managers/AIsource_manager.mjs'
+import path from 'node:path'
+
+import { buildPromptStruct } from '../../../../../src/public/parts/shells/chat/src/prompt_struct.mjs'
+import { loadPart, loadAnyPreferredDefaultPart } from '../../../../../src/server/parts_loader.mjs'
+
+const chardir = import.meta.dirname
+const charurl = `/parts/chars:${encodeURIComponent(path.basename(chardir))}`
 
 // AI源的实例
 /** @type {import('../../../../../src/decl/AIsource.ts').AIsource_t} */
@@ -260,10 +265,8 @@ Un assistente per aiutarti a costruire pagine rapidamente con daisyUI.
 			// 设置角色的配置数据
 			SetData: async (data) => {
 				// 如果传入了AI源的配置
-				if (data.AIsource)
-					// 加载AI源
-					AIsource = await loadAIsource(username, data.AIsource)
-
+				if (data.AIsource) AIsource = await loadPart(username, 'serviceSources/AI/' + data.AIsource) // 加载AI源
+				else AIsource = await loadAnyPreferredDefaultPart(username, 'serviceSources/AI') // 或加载默认AI源（若未设置默认AI源则为undefined）
 			}
 		},
 		// 角色的聊天接口

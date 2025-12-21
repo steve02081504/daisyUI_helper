@@ -2,7 +2,7 @@
 
 [![fount character](https://steve02081504.github.io/fount/badges/fount_character.svg)](https://github.com/topics/fount-character)
 
-[Quick Install/Update](https://steve02081504.github.io/fount/protocol?url=fount://run/shells/install/install;https://github.com/steve02081504/daisyUI_helper)
+[Quick Install/Update](https://steve02081504.github.io/fount/protocol?url=fount://run/shells:install/install;https://github.com/steve02081504/daisyUI_helper)
 
 An AI assistant character for [fount](https://github.com/steve02081504/fount), it fetches official daisyUI llm prompt from [`https://daisyui.com/llms.txt`](https://daisyui.com/llms.txt) and uses it to answer your questions. (Thank you [@Pouya 🌼](https://github.com/saadeghi)!)
 ![Image](https://github.com/user-attachments/assets/dcae33d8-3090-4a5f-bb84-dfab87958d33)
