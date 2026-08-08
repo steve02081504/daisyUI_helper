@@ -55,6 +55,22 @@ const groupGreetings = {
 	hi: { content: 'नमस्ते सब लोग! मैं डेज़ीयूआई सहायक हूँ, मैं समूह में डेज़ीयूआई से संबंधित प्रश्नों में आपकी मदद कर सकता हूँ।' },
 }
 
+const AI_SOURCE_MANAGE_URL = 'https://steve02081504.github.io/fount/protocol?url=fount://page/parts/shells:serviceSourceManage'
+const noAIFeedback = {
+	zh: `请先[设置角色的AI来源](${AI_SOURCE_MANAGE_URL})。`,
+	en: `Please [set the AI source](${AI_SOURCE_MANAGE_URL}) for the character first.`,
+	es: `Por favor, [configura la fuente de IA](${AI_SOURCE_MANAGE_URL}) del personaje primero.`,
+	fr: `Veuillez d'abord [configurer la source d'IA](${AI_SOURCE_MANAGE_URL}) du personnage.`,
+	de: `Bitte [konfigurieren Sie zuerst die KI-Quelle](${AI_SOURCE_MANAGE_URL}) für den Charakter.`,
+	ja: `先にキャラクターの[AIソースを設定](${AI_SOURCE_MANAGE_URL})してください。`,
+	ko: `먼저 캐릭터의 [AI 소스를 설정](${AI_SOURCE_MANAGE_URL})해 주세요.`,
+	ru: `Сначала [настройте источник ИИ](${AI_SOURCE_MANAGE_URL}) для персонажа.`,
+	pt: `Por favor, [configure a fonte de IA](${AI_SOURCE_MANAGE_URL}) do personagem primeiro.`,
+	it: `Per favore, [configura prima la fonte AI](${AI_SOURCE_MANAGE_URL}) del personaggio.`,
+	ar: `يرجى [تعيين مصدر الذكاء الاصطناعي](${AI_SOURCE_MANAGE_URL}) للشخصية أولاً.`,
+	hi: `कृपया पहले चरित्र के लिए [AI स्रोत सेट करें](${AI_SOURCE_MANAGE_URL})।`,
+}
+
 /** @type {CharAPI_t} */
 export default {
 	info: {
@@ -422,10 +438,7 @@ ${args.Charname}: 好的，在daisyUI中创建一个按钮很简单：
 			 * @returns {Promise<chatReply_t>} 回复内容。
 			 */
 			GetReply: async (args) => {
-				if (!AIsource) {
-					if (localeKey(args) === 'zh') return { content: '请先设置角色的AI来源。' }
-					return { content: 'Please set the AI source for the character first.' }
-				}
+				if (!AIsource) return { content: noAIFeedback[localeKey(args)] || noAIFeedback.en }
 				const prompt_struct = await buildPromptStruct(args)
 				/** @type {chatReply_t} */
 				const result = {
