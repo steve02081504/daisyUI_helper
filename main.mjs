@@ -405,10 +405,10 @@ ${args.Charname}: 好的，在daisyUI中创建一个按钮很简单：
 			},
 			/**
 			 * 获取其他角色视角下的该角色设定。
-			 * @param {chatReplyRequest_t} _args - 聊天回复请求。
+			 * @param {chatReplyRequest_t} args - 聊天回复请求。
 			 * @returns {{ text: { content: string, important: number }[], additional_chat_log: never[], extension: object }} 他者视角提示。
 			 */
-			GetPromptForOther: (_args) => ({
+			GetPromptForOther: (args) => ({
 				text: [{
 					content: `\
 一个帮助开发者使用daisyUI框架的角色。
