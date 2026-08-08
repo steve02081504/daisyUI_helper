@@ -1,25 +1,62 @@
 /**
  * @typedef {import('../../../../../src/decl/charAPI.ts').CharAPI_t} CharAPI_t
+ * @typedef {import('../../../../../src/decl/charAPI.ts').charInit_t} charInit_t
+ * @typedef {import('../../../../../src/public/parts/shells/chat/decl/chatLog.ts').chatReplyRequest_t} chatReplyRequest_t
+ * @typedef {import('../../../../../src/public/parts/shells/chat/decl/chatLog.ts').chatReply_t} chatReply_t
+ * @typedef {import('../../../../../src/public/parts/shells/chat/decl/chatLog.ts').chatLogEntry_t} chatLogEntry_t
+ * @typedef {import('../../../../../src/public/parts/shells/chat/decl/chatLog.ts').CharReplyPreviewUpdater_t} CharReplyPreviewUpdater_t
  */
 
-import path from 'node:path'
+import { buildPromptStruct } from '../../../../../src/public/parts/shells/chat/src/prompt_struct/index.mjs'
+import { loadPart } from '../../../../../src/server/parts_loader.mjs'
 
-import { buildPromptStruct } from '../../../../../src/public/parts/shells/chat/src/prompt_struct.mjs'
-import { loadPart, loadAnyPreferredDefaultPart } from '../../../../../src/server/parts_loader.mjs'
-
-const chardir = import.meta.dirname
-const charurl = `/parts/chars:${encodeURIComponent(path.basename(chardir))}`
-
-// AI源的实例
 /** @type {import('../../../../../src/decl/AIsource.ts').AIsource_t} */
 let AIsource = null
 
-// 用户名，用于加载AI源
+/** @type {string} */
 let username = ''
+
+/**
+ * 从请求中取出语言主标签。
+ * @param {chatReplyRequest_t} arg - 聊天回复请求。
+ * @returns {string} 语言主标签，缺省为 en。
+ */
+function localeKey(arg) {
+	return arg.locales?.[0]?.split('-')[0] || 'en'
+}
+
+const greetings = {
+	zh: { content: '您好！我是daisyUI助手，很高兴为您服务。' },
+	en: { content: 'Hello! I am the daisyUI Helper, nice to meet you.' },
+	es: { content: '¡Hola! Soy el asistente de daisyUI, encantado de ayudarle.' },
+	fr: { content: 'Bonjour ! Je suis l\'assistant daisyUI, ravi de vous aider.' },
+	de: { content: 'Hallo! Ich bin der daisyUI-Helfer, freut mich, Ihnen zu helfen.' },
+	ja: { content: 'こんにちは！daisyUIヘルパーです。お役に立てて嬉しいです。' },
+	ko: { content: '안녕하세요! daisyUI 도우미입니다. 도와드릴 수 있어서 기쁩니다.' },
+	ru: { content: 'Здравствуйте! Я помощник daisyUI, рад помочь вам.' },
+	pt: { content: 'Olá! Eu sou o assistente daisyUI, prazer em ajudar.' },
+	it: { content: 'Ciao! Sono l\'assistente daisyUI, lieto di aiutarla.' },
+	ar: { content: 'مرحباً! أنا مساعد ديزي يو آي، سعيد بمساعدتك.' },
+	hi: { content: 'नमस्ते! मैं डेज़ीयूआई सहायक हूँ, आपकी मदद करके खुशी हुई।' },
+}
+
+const groupGreetings = {
+	zh: { content: '大家好！我是daisyUI助手，可以在群里帮助大家解决daisyUI相关的问题。' },
+	en: { content: 'Hello everyone! I am the daisyUI Helper, I can help you with daisyUI related questions in the group.' },
+	es: { content: '¡Hola a todos! Soy el asistente de daisyUI, puedo ayudarles con preguntas relacionadas con daisyUI en el grupo.' },
+	fr: { content: 'Bonjour à tous ! Je suis l\'assistant daisyUI, je peux vous aider avec les questions relatives à daisyUI dans le groupe.' },
+	de: { content: 'Hallo zusammen! Ich bin der daisyUI-Helfer, ich kann Ihnen bei Fragen zu daisyUI in der Gruppe helfen.' },
+	ja: { content: '皆さん、こんにちは！daisyUIヘルパーです。グループ内でdaisyUIに関する質問にお答えできます。' },
+	ko: { content: '여러분 안녕하세요! 저는 daisyUI 도우미입니다. 그룹에서 daisyUI 관련 질문에 대해 도움을 드릴 수 있습니다.' },
+	ru: { content: 'Всем привет! Я помощник daisyUI, могу помочь вам с вопросами по daisyUI в группе.' },
+	pt: { content: 'Olá a todos! Eu sou o assistente daisyUI, posso ajudá-los com questões relacionadas ao daisyUI no grupo.' },
+	it: { content: 'Ciao a tutti! Sono l\'assistente daisyUI, posso aiutarvi con domande relative a daisyUI nel gruppo.' },
+	ar: { content: 'مرحباً بالجميع! أنا مساعد ديزي يو آي، يمكنني مساعدتكم في حل المشكلات المتعلقة بديزي يو آي في المجموعة.' },
+	hi: { content: 'नमस्ते सब लोग! मैं डेज़ीयूआई सहायक हूँ, मैं समूह में डेज़ीयूआई से संबंधित प्रश्नों में आपकी मदद कर सकता हूँ।' },
+}
 
 /** @type {CharAPI_t} */
 export default {
-	// 角色的基本信息
 	info: {
 		'zh-CN': {
 			name: 'daisyUI助手', // 角色的名字
@@ -36,7 +73,8 @@ export default {
 `, // 角色的详细介绍，支持Markdown语法
 			version: '1.0.0', // 角色的版本号
 			author: 'steve02081504 & ZL-31 & Pouya 🌼', // 角色的作者
-			home_page: 'https://daisyui.com', // 角色的主页
+			home_page: 'https://daisyui.com',
+			issue_page: 'https://github.com/steve02081504/daisyUI_helper/issues',
 			tags: ['daisyUI', '前端开发', '助手'], // 角色的标签
 		},
 		'en-US': {
@@ -55,6 +93,7 @@ An assistant to help you build pages quickly with daisyUI.
 			version: '1.0.0',
 			author: 'steve02081504 & ZL-31 & Pouya 🌼',
 			home_page: 'https://daisyui.com',
+			issue_page: 'https://github.com/steve02081504/daisyUI_helper/issues',
 			tags: ['daisyUI', 'Front-end Development', 'Assistant'],
 		},
 		'es-ES': { // 西班牙语
@@ -73,6 +112,7 @@ Un asistente para ayudarte a construir páginas rápidamente con daisyUI.
 			version: '1.0.0',
 			author: 'steve02081504 & ZL-31 & Pouya 🌼',
 			home_page: 'https://daisyui.com',
+			issue_page: 'https://github.com/steve02081504/daisyUI_helper/issues',
 			tags: ['daisyUI', 'Desarrollo Front-end', 'Asistente'],
 		},
 		'fr-FR': { // 法语
@@ -91,6 +131,7 @@ Un assistant pour vous aider à construire des pages rapidement avec daisyUI.
 			version: '1.0.0',
 			author: 'steve02081504 & ZL-31 & Pouya 🌼',
 			home_page: 'https://daisyui.com',
+			issue_page: 'https://github.com/steve02081504/daisyUI_helper/issues',
 			tags: ['daisyUI', 'Développement Front-end', 'Assistant'],
 		},
 		'de-DE': { // 德语
@@ -109,6 +150,7 @@ Ein Assistent, der Ihnen hilft, schnell Seiten mit daisyUI zu erstellen.
 			version: '1.0.0',
 			author: 'steve02081504 & ZL-31 & Pouya 🌼',
 			home_page: 'https://daisyui.com',
+			issue_page: 'https://github.com/steve02081504/daisyUI_helper/issues',
 			tags: ['daisyUI', 'Frontend-Entwicklung', 'Assistent'],
 		},
 		'ja-JP': { // 日语
@@ -127,6 +169,7 @@ daisyUIで素早くページを構築するのに役立つアシスタント。
 			version: '1.0.0',
 			author: 'steve02081504 & ZL-31 & Pouya 🌼',
 			home_page: 'https://daisyui.com',
+			issue_page: 'https://github.com/steve02081504/daisyUI_helper/issues',
 			tags: ['daisyUI', 'フロントエンド開発', 'アシスタント'],
 		},
 		'ko-KR': { // 韩语
@@ -145,6 +188,7 @@ daisyUI를 사용하여 페이지를 빠르게 구축하도록 돕는 도우미�
 			version: '1.0.0',
 			author: 'steve02081504 & ZL-31 & Pouya 🌼',
 			home_page: 'https://daisyui.com',
+			issue_page: 'https://github.com/steve02081504/daisyUI_helper/issues',
 			tags: ['daisyUI', '프론트엔드 개발', '도우미'],
 		},
 		'ru-RU': { // 俄语
@@ -163,6 +207,7 @@ daisyUI를 사용하여 페이지를 빠르게 구축하도록 돕는 도우미�
 			version: '1.0.0',
 			author: 'steve02081504 & ZL-31 & Pouya 🌼',
 			home_page: 'https://daisyui.com',
+			issue_page: 'https://github.com/steve02081504/daisyUI_helper/issues',
 			tags: ['daisyUI', 'Фронтенд-разработка', 'Ассистент'],
 		},
 		'pt-PT': { // 葡萄牙语
@@ -181,6 +226,7 @@ Um assistente para ajudá-lo a construir páginas rapidamente com daisyUI.
 			version: '1.0.0',
 			author: 'steve02081504 & ZL-31 & Pouya 🌼',
 			home_page: 'https://daisyui.com',
+			issue_page: 'https://github.com/steve02081504/daisyUI_helper/issues',
 			tags: ['daisyUI', 'Desenvolvimento Front-end', 'Assistente'],
 		},
 		'it-IT': { // 意大利语
@@ -199,6 +245,7 @@ Un assistente per aiutarti a costruire pagine rapidamente con daisyUI.
 			version: '1.0.0',
 			author: 'steve02081504 & ZL-31 & Pouya 🌼',
 			home_page: 'https://daisyui.com',
+			issue_page: 'https://github.com/steve02081504/daisyUI_helper/issues',
 			tags: ['daisyUI', 'Sviluppo Front-end', 'Assistente'],
 		},
 		'ar-AR': { // 阿拉伯语
@@ -217,6 +264,7 @@ Un assistente per aiutarti a costruire pagine rapidamente con daisyUI.
 			version: '1.0.0',
 			author: 'steve02081504 & ZL-31 & Pouya 🌼',
 			home_page: 'https://daisyui.com',
+			issue_page: 'https://github.com/steve02081504/daisyUI_helper/issues',
 			tags: ['daisyUI', 'تطوير الواجهة الأمامية', 'مساعد'],
 			direction: 'rtl', // 阿拉伯语是从右向左书写的
 		},
@@ -236,106 +284,83 @@ Un assistente per aiutarti a costruire pagine rapidamente con daisyUI.
 			version: '1.0.0',
 			author: 'steve02081504 & ZL-31 & Pouya 🌼',
 			home_page: 'https://daisyui.com',
+			issue_page: 'https://github.com/steve02081504/daisyUI_helper/issues',
 			tags: ['daisyUI', 'फ्रंट-एंड डेवलपमेंट', 'सहायक'],
 		},
 	},
 
-	// 初始化函数，在角色被启用时调用，可留空
+	/**
+	 * 角色启用时的初始化钩子。
+	 * @param {charInit_t} stat - 角色初始化信息。
+	 * @returns {void}
+	 */
 	Init: (stat) => { },
 
-	// 安装卸载函数，在角色被安装/卸载时调用，可留空
+	/**
+	 * 角色卸载时的清理钩子。
+	 * @param {string} reason - 卸载原因。
+	 * @param {string} from - 卸载来源。
+	 * @returns {void}
+	 */
 	Uninstall: (reason, from) => { },
 
-	// 加载函数，在角色被加载时调用，在这里获取用户名
+	/**
+	 * 角色加载时的钩子。
+	 * @param {charInit_t} stat - 角色初始化信息。
+	 * @returns {void}
+	 */
 	Load: (stat) => {
-		username = stat.username // 获取用户名
+		username = stat.username
 	},
 
-	// 卸载函数，在角色被卸载时调用，可留空
+	/**
+	 * 角色卸载出内存时的钩子。
+	 * @param {string} reason - 卸载原因。
+	 * @returns {void}
+	 */
 	Unload: (reason) => { },
 
-	// 角色的接口
 	interfaces: {
-		// 角色的配置接口
 		config: {
-			// 获取角色的配置数据
+			/**
+			 * 获取角色配置。
+			 * @returns {{ AIsource: string }} 当前 AI 源文件名。
+			 */
 			GetData: () => ({
-				AIsource: AIsource?.filename || '', // 返回当前使用的AI源的文件名
+				AIsource: AIsource?.filename || '',
 			}),
-			// 设置角色的配置数据
+			/**
+			 * 设置角色配置。
+			 * @param {{ AIsource?: string }} data - 配置数据。
+			 * @returns {Promise<void>}
+			 */
 			SetData: async (data) => {
-				// 如果传入了AI源的配置
-				if (data.AIsource) AIsource = await loadPart(username, 'serviceSources/AI/' + data.AIsource) // 加载AI源
-				else AIsource = await loadAnyPreferredDefaultPart(username, 'serviceSources/AI') // 或加载默认AI源（若未设置默认AI源则为undefined）
+				if ('AIsource' in data)
+					AIsource = data.AIsource
+						? await loadPart(username, 'serviceSources/AI/' + data.AIsource)
+						: null
 			}
 		},
-		// 角色的聊天接口
 		chat: {
-			// 获取角色的开场白
-			GetGreeting: (arg, index) => {
-				const locale = arg.locales[0].split('-')[0]
-				switch (locale) {
-					case 'zh':
-						return [{ content: '您好！我是daisyUI助手，很高兴为您服务。' },][index]
-					case 'en':
-						return [{ content: 'Hello! I am the daisyUI Helper, nice to meet you.' },][index]
-					case 'es':
-						return [{ content: '¡Hola! Soy el asistente de daisyUI, encantado de ayudarle.' },][index]
-					case 'fr':
-						return [{ content: 'Bonjour ! Je suis l\'assistant daisyUI, ravi de vous aider.' },][index]
-					case 'de':
-						return [{ content: 'Hallo! Ich bin der daisyUI-Helfer, freut mich, Ihnen zu helfen.' },][index]
-					case 'ja':
-						return [{ content: 'こんにちは！daisyUIヘルパーです。お役に立てて嬉しいです。' },][index]
-					case 'ko':
-						return [{ content: '안녕하세요! daisyUI 도우미입니다. 도와드릴 수 있어서 기쁩니다.' },][index]
-					case 'ru':
-						return [{ content: 'Здравствуйте! Я помощник daisyUI, рад помочь вам.' },][index]
-					case 'pt':
-						return [{ content: 'Olá! Eu sou o assistente daisyUI, prazer em ajudar.' },][index]
-					case 'it':
-						return [{ content: 'Ciao! Sono l\'assistente daisyUI, lieto di aiutarla.' },][index]
-					case 'ar':
-						return [{ content: 'مرحباً! أنا مساعد ديزي يو آي، سعيد بمساعدتك.' },][index]
-					case 'hi':
-						return [{ content: 'नमस्ते! मैं डेज़ीयूआई सहायक हूँ, आपकी मदद करके खुशी हुई।' },][index]
-					default:
-						return [{ content: 'Hello! I am the daisyUI Helper, nice to meet you.' },][index] // 默认英文
-				}
-			},
-			// 获取角色在群组中的问好
-			GetGroupGreeting: (arg, index) => {
-				const locale = arg.locales[0].split('-')[0]
-				switch (locale) {
-					case 'zh':
-						return [{ content: '大家好！我是daisyUI助手，可以在群里帮助大家解决daisyUI相关的问题。' },][index]
-					case 'en':
-						return [{ content: 'Hello everyone! I am the daisyUI Helper, I can help you with daisyUI related questions in the group.' },][index]
-					case 'es':
-						return [{ content: '¡Hola a todos! Soy el asistente de daisyUI, puedo ayudarles con preguntas relacionadas con daisyUI en el grupo.' },][index]
-					case 'fr':
-						return [{ content: 'Bonjour à tous ! Je suis l\'assistant daisyUI, je peux vous aider avec les questions relatives à daisyUI dans le groupe.' },][index]
-					case 'de':
-						return [{ content: 'Hallo zusammen! Ich bin der daisyUI-Helfer, ich kann Ihnen bei Fragen zu daisyUI in der Gruppe helfen.' },][index]
-					case 'ja':
-						return [{ content: '皆さん、こんにちは！daisyUIヘルパーです。グループ内でdaisyUIに関する質問にお答えできます。' },][index]
-					case 'ko':
-						return [{ content: '여러분 안녕하세요! 저는 daisyUI 도우미입니다. 그룹에서 daisyUI 관련 질문에 대해 도움을 드릴 수 있습니다.' },][index]
-					case 'ru':
-						return [{ content: 'Всем привет! Я помощник daisyUI, могу помочь вам с вопросами по daisyUI в группе.' },][index]
-					case 'pt':
-						return [{ content: 'Olá a todos! Eu sou o assistente daisyUI, posso ajudá-los com questões relacionadas ao daisyUI no grupo.' },][index]
-					case 'it':
-						return [{ content: 'Ciao a tutti! Sono l\'assistente daisyUI, posso aiutarvi con domande relative a daisyUI nel gruppo.' },][index]
-					case 'ar':
-						return [{ content: 'مرحباً بالجميع! أنا مساعد ديزي يو آي، يمكنني مساعدتكم في حل المشكلات المتعلقة بديزي يو آي في المجموعة.' },][index]
-					case 'hi':
-						return [{ content: 'नमस्ते सब लोग! मैं डेज़ीयूआई सहायक हूँ, मैं समूह में डेज़ीयूआई से संबंधित प्रश्नों में आपकी मदद कर सकता हूँ।' },][index]
-					default:
-						return [{ content: 'Hello everyone! I am the daisyUI Helper, I can help you with daisyUI related questions in the group.' },][index] // 默认英文
-				}
-			},
-			// 获取角色的提示词
+			/**
+			 * 获取角色开场白。
+			 * @param {chatReplyRequest_t} arg - 聊天回复请求。
+			 * @param {number} index - 开场白索引。
+			 * @returns {chatReply_t} 开场白回复。
+			 */
+			GetGreeting: (arg, index) => [greetings[localeKey(arg)] || greetings.en][index],
+			/**
+			 * 获取角色加入群聊时的问候。
+			 * @param {chatReplyRequest_t} arg - 聊天回复请求。
+			 * @param {number} index - 问候索引。
+			 * @returns {chatReply_t} 群组问候回复。
+			 */
+			GetGroupGreeting: (arg, index) => [groupGreetings[localeKey(arg)] || groupGreetings.en][index],
+			/**
+			 * 获取角色自身提示词。
+			 * @param {chatReplyRequest_t} args - 聊天回复请求。
+			 * @returns {Promise<{ text: { content: string, important: number }[], additional_chat_log: never[], extension: object }>} 提示结构。
+			 */
 			GetPrompt: async (args) => {
 				try {
 					const response = await fetch('https://daisyui.com/llms.txt')
@@ -363,7 +388,8 @@ ${args.Charname}: 好的，在daisyUI中创建一个按钮很简单：
 						additional_chat_log: [],
 						extension: {},
 					}
-				} catch (error) {
+				}
+				catch (error) {
 					console.error('Failed to fetch daisyUI prompt:', error)
 					return {
 						text: [{
@@ -377,35 +403,33 @@ ${args.Charname}: 好的，在daisyUI中创建一个按钮很简单：
 					}
 				}
 			},
-			// 获取其他角色看到的该角色的设定，群聊时生效
-			GetPromptForOther: (args) => {
-				return {
-					text: [{
-						content: `\
+			/**
+			 * 获取其他角色视角下的该角色设定。
+			 * @param {chatReplyRequest_t} _args - 聊天回复请求。
+			 * @returns {{ text: { content: string, important: number }[], additional_chat_log: never[], extension: object }} 他者视角提示。
+			 */
+			GetPromptForOther: (_args) => ({
+				text: [{
+					content: `\
 一个帮助开发者使用daisyUI框架的角色。
 `,
-						important: 0
-					}],
-					additional_chat_log: [],
-					extension: {},
-				}
-			},
-			// 获取角色的回复
+					important: 0
+				}],
+				additional_chat_log: [],
+				extension: {},
+			}),
+			/**
+			 * 基于对话日志生成回复。
+			 * @param {chatReplyRequest_t} args - 聊天回复请求。
+			 * @returns {Promise<chatReply_t>} 回复内容。
+			 */
 			GetReply: async (args) => {
-				// 如果没有设置AI源，返回默认回复
 				if (!AIsource) {
-					const locale = args.locales[0].split('-')[0]
-					switch (locale) {
-						case 'zh':
-							return { content: '请先设置角色的AI来源。' }
-						default:
-							return { content: 'Please set the AI source for the character first.' } // 默认英文
-					}
+					if (localeKey(args) === 'zh') return { content: '请先设置角色的AI来源。' }
+					return { content: 'Please set the AI source for the character first.' }
 				}
-				// 用fount提供的工具构建提示词结构
 				const prompt_struct = await buildPromptStruct(args)
-				// 创建回复容器
-				/** @type {import("../../../../../src/public/shells/chat/decl/chatLog.ts").chatReply_t} */
+				/** @type {chatReply_t} */
 				const result = {
 					content: '',
 					logContextBefore: [],
@@ -413,34 +437,36 @@ ${args.Charname}: 好的，在daisyUI中创建一个按钮很简单：
 					files: [],
 					extension: {},
 				}
-				// 构建插件可能需要的追加上下文函数
+				/**
+				 * 向结果与 prompt 追加长期上下文。
+				 * @param {chatLogEntry_t} entry - 日志条目。
+				 * @returns {void}
+				 */
 				function AddLongTimeLog(entry) {
 					entry.charVisibility = [args.char_id]
+					entry.uid ??= entry.role === 'user' ? args.UserUid : entry.role === 'char' ? args.CharUid : 'system'
 					result?.logContextBefore?.push?.(entry)
 					prompt_struct.char_prompt.additional_chat_log.push(entry)
 				}
 
-				// 构建更新预览管线
 				args.generation_options ??= {}
 				const oriReplyPreviewUpdater = args.generation_options?.replyPreviewUpdater
 				/**
 				 * 聊天回复预览更新管道。
-				 * @type {import('../../../../../src/public/shells/chat/decl/chatLog.ts').CharReplyPreviewUpdater_t}
-				 * @returns {any} 预览更新管道
+				 * @type {CharReplyPreviewUpdater_t}
 				 */
-				let replyPreviewUpdater = (args, r) => oriReplyPreviewUpdater?.(r)
+				let replyPreviewUpdater = (req, r) => oriReplyPreviewUpdater?.(r)
 				for (const GetReplyPreviewUpdater of [
 					...Object.values(args.plugins).map(plugin => plugin.interfaces?.chat?.GetReplyPreviewUpdater)
 				].filter(Boolean))
 					replyPreviewUpdater = GetReplyPreviewUpdater(replyPreviewUpdater)
 
 				/**
-				 * @param {any} r - 局部响应
-				 * @returns {any} 预览更新管道
+				 * @param {chatReply_t} r - 局部响应。
+				 * @returns {void}
 				 */
 				args.generation_options.replyPreviewUpdater = r => replyPreviewUpdater(args, r)
 
-				// 在重新生成循环中检查插件触发
 				regen: while (true) {
 					args.generation_options.base_result = result
 					await AIsource.StructCall(prompt_struct, args.generation_options)
@@ -453,7 +479,6 @@ ${args.Charname}: 好的，在daisyUI中创建一个按钮很简单：
 					if (continue_regen) continue regen
 					break
 				}
-				// 返回构建好的回复
 				return result
 			}
 		}

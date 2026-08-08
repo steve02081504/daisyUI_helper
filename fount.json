@@ -1,4 +1,5 @@
 {
 	"type": "chars",
-	"dirname": "daisyUI_helper"
+	"dirname": "daisyUI_helper",
+	"CI-file": ".github/workflows/CI.mjs"
 }
