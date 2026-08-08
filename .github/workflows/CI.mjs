@@ -16,10 +16,10 @@ await CI.test('GetPromptForOther', async () => {
 	CI.assert(Array.isArray(prompt?.text) && prompt.text.some(t => String(t.content || '').includes('daisyUI')), `expected daisyUI prompt, got: ${JSON.stringify(prompt)}`)
 })
 
-await CI.test('noAI Fallback', async () => {
+await CI.test('empty AIsource uses preferred default', async () => {
 	await CI.char.interfaces.config.SetData({ AIsource: '' })
 	const { reply } = await CI.runInput('Hello')
-	CI.assert(typeof reply?.content === 'string' && reply.content.length > 0, `expected fallback reply, got: ${JSON.stringify(reply)}`)
+	CI.assert(typeof reply?.content === 'string' && reply.content.length > 0, `expected reply from preferred default or offline fallback, got: ${JSON.stringify(reply)}`)
 })
 
 await CI.test('Basic AI Response', async () => {

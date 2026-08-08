@@ -8,7 +8,7 @@
  */
 
 import { buildPromptStruct } from '../../../../../src/public/parts/shells/chat/src/prompt_struct/index.mjs'
-import { loadPart } from '../../../../../src/server/parts_loader.mjs'
+import { loadPart, loadAnyPreferredDefaultPart } from '../../../../../src/server/parts_loader.mjs'
 
 /** @type {import('../../../../../src/decl/AIsource.ts').AIsource_t} */
 let AIsource = null
@@ -335,10 +335,8 @@ Un assistente per aiutarti a costruire pagine rapidamente con daisyUI.
 			 * @returns {Promise<void>}
 			 */
 			SetData: async (data) => {
-				if ('AIsource' in data)
-					AIsource = data.AIsource
-						? await loadPart(username, 'serviceSources/AI/' + data.AIsource)
-						: null
+				if (data.AIsource) AIsource = await loadPart(username, 'serviceSources/AI/' + data.AIsource)
+				else AIsource = await loadAnyPreferredDefaultPart(username, 'serviceSources/AI')
 			}
 		},
 		chat: {
